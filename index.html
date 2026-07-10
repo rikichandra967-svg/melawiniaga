@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MelawiNiaga</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --teal-950:#12302C;
+    --teal-800:#1A423D;
+    --teal-700:#1F4E4A;
+    --teal-600:#2A6259;
+    --gold-500:#D9A441;
+    --gold-600:#BE8A2E;
+    --brown-700:#6B4226;
+    --brown-500:#8A5C3B;
+    --paper:#F3EEE0;
+    --card:#FBF8F1;
+    --ink:#241C14;
+    --ink-soft:#5B5145;
+    --line:#E1D8C3;
+    --success:#3D7A56;
+    --success-bg:#E4EFE7;
+    --pending:#B9812B;
+    --pending-bg:#F6EAD2;
+    --danger:#B3432E;
+    --danger-bg:#F5E3DD;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;line-height:1.5;border-top:4px solid var(--gold-500);}
+  h1,h2,h3{font-family:'Fraunces',serif;margin:0;color:var(--teal-950);}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  button{font-family:inherit;cursor:pointer;border:none;}
+  input,select,textarea{font-family:inherit;font-size:15px;}
+  #app{max-width:1080px;margin:0 auto;padding-bottom:60px;}
+
+  @keyframes fadeSlideIn{ from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:translateY(0);} }
+  .view-fade{animation:fadeSlideIn .35s ease;}
+
+  /* NAV */
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;position:sticky;top:0;background:var(--paper);z-index:50;border-bottom:1px solid var(--line);gap:12px;flex-wrap:wrap;}
+  .nav-brand{display:flex;flex-direction:column;cursor:pointer;}
+  .nav-brand .word{font-family:'Fraunces',serif;font-weight:700;font-size:20px;color:var(--teal-950);letter-spacing:-0.3px;}
+  .nav-brand .tag{font-size:11px;color:var(--ink-soft);letter-spacing:0.5px;text-transform:uppercase;}
+  .nav-pill{display:flex;gap:2px;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:4px;flex-wrap:wrap;}
+  .nav-btn{background:transparent;color:var(--ink-soft);padding:8px 14px;border-radius:20px;font-size:12.5px;font-weight:600;transition:all .15s;white-space:nowrap;}
+  .nav-btn:hover{color:var(--teal-800);}
+  .nav-btn.active{background:var(--teal-800);color:#fff;box-shadow:0 2px 6px rgba(18,48,44,0.25);}
+  .back-btn{background:none;color:var(--teal-700);font-weight:600;font-size:13px;padding:4px 0;display:inline-flex;align-items:center;gap:4px;}
+  .back-btn:hover{text-decoration:underline;}
+
+  /* HERO */
+  .hero{background:var(--teal-950);color:#F3EEE0;padding:56px 24px 76px;position:relative;overflow:hidden;
+    background-image:radial-gradient(circle,rgba(217,164,65,0.10) 1px,transparent 1px);background-size:24px 24px;}
+  .hero-inner{max-width:640px;position:relative;z-index:2;}
+  .eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold-500);font-weight:600;margin-bottom:14px;}
+  .hero h1{color:#fff;font-size:36px;line-height:1.15;font-weight:600;margin-bottom:16px;}
+  .hero p{color:#D6D0C0;font-size:16px;max-width:520px;margin-bottom:28px;}
+  .hero-actions{display:flex;gap:12px;flex-wrap:wrap;}
+  .btn-primary{background:var(--gold-500);color:var(--teal-950);padding:13px 24px;border-radius:10px;font-weight:700;font-size:14px;transition:transform .15s,background .15s;}
+  .btn-primary:hover{background:var(--gold-600);transform:translateY(-1px);}
+  .btn-secondary{background:transparent;color:#fff;padding:13px 24px;border-radius:10px;font-weight:600;font-size:14px;border:1px solid rgba(255,255,255,0.3);transition:border-color .15s;}
+  .btn-secondary:hover{border-color:#fff;}
+  .wave{position:absolute;bottom:-2px;left:0;width:100%;line-height:0;z-index:1;}
+
+  /* STATS */
+  .stats{display:flex;gap:0;background:var(--card);margin:-40px 24px 0;border-radius:var(--radius);position:relative;z-index:3;box-shadow:0 10px 28px rgba(18,48,44,0.14);overflow:hidden;border:1px solid var(--line);flex-wrap:wrap;}
+  .stat{flex:1;min-width:100px;padding:18px;text-align:center;border-right:1px solid var(--line);}
+  .stat:last-child{border-right:none;}
+  .stat .num{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--teal-800);}
+  .stat .lbl{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
+
+  /* SECTIONS */
+  .section{padding:56px 24px;}
+  .section-head{max-width:640px;margin:0 auto 32px;text-align:center;}
+  .section-head h2{font-size:26px;margin-bottom:10px;}
+  .section-head p{color:var(--ink-soft);font-size:15px;}
+  .back-wrap{max-width:900px;margin:18px auto 0;padding:0 24px;}
+
+  /* HOW IT WORKS */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:900px;margin:0 auto;}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:24px;transition:transform .15s;}
+  .step:hover{transform:translateY(-2px);}
+  .step .step-num{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--gold-600);font-weight:600;margin-bottom:10px;}
+  .step h3{font-size:16px;margin-bottom:8px;color:var(--teal-950);}
+  .step p{font-size:13.5px;color:var(--ink-soft);margin:0;}
+
+  /* GRID / CARDS */
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;max-width:900px;margin:0 auto 16px;align-items:center;}
+  .search-input,.select-input{padding:11px 16px;border:1px solid var(--line);border-radius:24px;background:var(--card);}
+  .search-input{flex:1;min-width:180px;}
+  .select-input{min-width:160px;}
+  .chip{padding:7px 13px;border-radius:20px;background:var(--card);border:1px solid var(--line);font-size:12.5px;font-weight:600;color:var(--ink-soft);transition:all .15s;}
+  .chip.active{background:var(--teal-800);color:#fff;border-color:var(--teal-800);}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px;max-width:900px;margin:0 auto;}
+  .prod-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;transition:transform .18s,box-shadow .18s;}
+  .prod-card:hover{transform:translateY(-4px);box-shadow:0 12px 26px rgba(18,48,44,0.16);}
+  .prod-thumb{height:88px;background:linear-gradient(135deg,var(--teal-700),var(--teal-950));display:flex;align-items:center;justify-content:center;font-size:32px;}
+  .prod-body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;flex:1;}
+  .prod-shop{font-size:11px;color:var(--gold-600);font-weight:700;text-transform:uppercase;letter-spacing:0.4px;}
+  .prod-name{font-size:15px;font-weight:600;color:var(--teal-950);}
+  .prod-loc{font-size:12px;color:var(--ink-soft);margin-bottom:2px;}
+  .prod-price{position:relative;display:inline-flex;align-items:center;background:var(--brown-700);color:#F3EEE0;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;padding:6px 14px 6px 20px;border-radius:0 7px 7px 0;margin:2px 0 6px;align-self:flex-start;}
+  .prod-price::before{content:'';position:absolute;left:6px;top:50%;transform:translateY(-50%);width:6px;height:6px;border-radius:50%;background:var(--card);}
+  .prod-buy{background:var(--teal-800);color:#fff;padding:10px;border-radius:8px;font-size:13px;font-weight:600;transition:background .15s;}
+  .prod-buy:hover{background:var(--teal-700);}
+  .empty{text-align:center;color:var(--ink-soft);padding:44px 20px;font-size:14px;}
+  .empty .eicon{font-size:30px;display:block;margin-bottom:10px;}
+
+  /* CTA band */
+  .cta-band{background:var(--brown-700);color:#F3EEE0;border-radius:var(--radius);max-width:900px;margin:0 auto;padding:36px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;}
+  .cta-band h3{color:#fff;font-size:22px;margin-bottom:6px;}
+  .cta-band p{margin:0;color:#E9DFCF;font-size:14px;max-width:420px;}
+
+  /* FORMS */
+  .form-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:28px;max-width:440px;margin:0 auto;}
+  .form-card h2{font-size:20px;margin-bottom:6px;}
+  .form-card .sub{color:var(--ink-soft);font-size:13px;margin-bottom:20px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:12.5px;font-weight:600;color:var(--ink-soft);margin-bottom:5px;}
+  .field input,.field select,.field textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;}
+  .field textarea{resize:vertical;min-height:60px;}
+  .form-submit{width:100%;background:var(--teal-800);color:#fff;padding:12px;border-radius:8px;font-weight:700;font-size:14px;margin-top:6px;transition:background .15s;}
+  .form-submit:hover{background:var(--teal-700);}
+  .link-btn{background:none;color:var(--teal-700);font-weight:600;font-size:13px;text-decoration:underline;padding:0;}
+  .warn-box{background:var(--pending-bg);color:var(--pending);border-radius:10px;padding:12px 14px;font-size:12.5px;margin-bottom:16px;}
+
+  /* DASHBOARD */
+  .dash-tabs{display:flex;gap:8px;max-width:700px;margin:0 auto 24px;flex-wrap:wrap;}
+  .dash-tab{flex:1;min-width:120px;text-align:center;padding:10px;border-radius:8px;background:var(--card);border:1px solid var(--line);font-weight:600;font-size:12.5px;color:var(--ink-soft);}
+  .dash-tab.active{background:var(--teal-800);color:#fff;border-color:var(--teal-800);}
+  .order-slip{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;max-width:700px;margin:0 auto 14px;}
+  .order-top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px dashed var(--line);padding-bottom:10px;margin-bottom:10px;}
+  .order-id{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-soft);}
+  .badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.3px;}
+  .badge.menunggu{background:var(--pending-bg);color:var(--pending);}
+  .badge.dikonfirmasi{background:var(--success-bg);color:var(--success);}
+  .badge.selesai{background:#DCE6E2;color:var(--teal-800);}
+  .badge.ditolak{background:var(--danger-bg);color:var(--danger);}
+  .order-row{font-size:13.5px;margin-bottom:3px;color:var(--ink);}
+  .order-row b{color:var(--teal-950);}
+  .order-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+  .btn-sm{padding:8px 14px;border-radius:7px;font-size:12.5px;font-weight:700;display:inline-block;}
+  .btn-confirm{background:var(--success);color:#fff;}
+  .btn-reject{background:transparent;color:var(--danger);border:1px solid var(--danger);}
+  .btn-done{background:var(--teal-800);color:#fff;}
+  .btn-wa{background:var(--gold-500);color:var(--teal-950);}
+
+  .simple-list{max-width:700px;margin:0 auto;}
+  .prod-row{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin-bottom:10px;gap:10px;}
+  .prod-row .pn{font-weight:600;font-size:14px;}
+  .prod-row .pp{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--brown-700);white-space:nowrap;}
+
+  /* ADMIN */
+  .admin-table{max-width:900px;margin:0 auto 30px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
+  .admin-row{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);gap:10px;flex-wrap:wrap;}
+  .admin-row:last-child{border-bottom:none;}
+  .admin-row .an{font-weight:600;font-size:14px;}
+  .admin-row .aloc{font-size:12px;color:var(--ink-soft);}
+
+  footer{text-align:center;padding:30px 20px;color:var(--ink-soft);font-size:12px;border-top:1px solid var(--line);}
+  footer .admin-link{display:block;margin-top:8px;color:var(--ink-soft);text-decoration:underline;font-size:11px;}
+
+  /* MODAL */
+  .overlay{position:fixed;inset:0;background:rgba(18,48,44,0.55);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;}
+  .modal{background:var(--card);border-radius:var(--radius);max-width:420px;width:100%;padding:26px;max-height:90vh;overflow:auto;}
+  .modal h3{font-size:18px;margin-bottom:4px;}
+  .modal .sub{font-size:13px;color:var(--ink-soft);margin-bottom:16px;}
+  .modal-close{float:right;background:none;font-size:20px;color:var(--ink-soft);line-height:1;}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--teal-950);color:#fff;padding:14px 22px;border-radius:10px;font-size:13.5px;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,0.25);max-width:90%;text-align:center;}
+
+  .stars{color:var(--gold-500);letter-spacing:1px;}
+  .rating-line{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink-soft);margin-bottom:2px;}
+  .shop-link{background:none;border:none;padding:0;margin:0;font:inherit;color:var(--gold-600);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:0.4px;cursor:pointer;text-align:left;}
+  .shop-link:hover{text-decoration:underline;}
+  .shop-header{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:26px;max-width:900px;margin:0 auto 30px;}
+  .star-picker{display:flex;gap:8px;font-size:28px;margin-bottom:16px;}
+  .star-picker .star{color:var(--line);cursor:pointer;transition:color .1s;}
+  .star-picker .star.filled{color:var(--gold-500);}
+  .review-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px;}
+  .review-card .rname{font-weight:600;font-size:13.5px;color:var(--teal-950);}
+  .review-card .rdate{font-size:11px;color:var(--ink-soft);margin-top:2px;}
+  .review-card .rcomment{font-size:13.5px;color:var(--ink);margin-top:8px;font-style:italic;}
+
+  .setup-screen{max-width:600px;margin:60px auto;padding:0 20px;}
+  .setup-screen .form-card{max-width:100%;}
+  .setup-screen ol{padding-left:20px;font-size:13.5px;color:var(--ink-soft);}
+  .setup-screen li{margin-bottom:8px;}
+  .setup-screen code{background:var(--paper);padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:12px;}
+
+  @media(max-width:640px){
+    .steps{grid-template-columns:1fr;}
+    .stats{flex-direction:column;margin:-30px 16px 0;}
+    .stat{border-right:none;border-bottom:1px solid var(--line);}
+    .stat:last-child{border-bottom:none;}
+    .hero h1{font-size:27px;}
+    .cta-band{flex-direction:column;text-align:center;}
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<!--
+  FIREBASE SETUP — WAJIB DIISI SEBELUM DIPAKAI ONLINE
+  1. Buka https://console.firebase.google.com, buat project baru (gratis).
+  2. Di project itu, buka "Build > Firestore Database" > Create database > mulai di "test mode".
+  3. Buka "Project settings" (ikon gerigi) > scroll ke "Your apps" > klik ikon web (</>) > daftarkan app.
+  4. Firebase akan menampilkan firebaseConfig — salin nilainya ke bagian firebaseConfig di bawah ini.
+  5. Cek juga versi SDK terbaru di https://firebase.google.com/docs/web/setup jika versi di bawah sudah usang.
+-->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+/* ================== ISI BAGIAN INI DENGAN CONFIG FIREBASE ANDA ================== */
+const firebaseConfig = {
+  apiKey: "AIzaSyA26Q3KVF6owRy2dlOSGktJCW_j-vMbdsQ",
+  authDomain: "melawiniaga-50d3b.firebaseapp.com",
+  projectId: "melawiniaga-50d3b",
+  storageBucket: "melawiniaga-50d3b.firebasestorage.app",
+  messagingSenderId: "143380839275",
+  appId: "1:143380839275:web:b5ae536feb26fab987aa2e"
+};
+/* =================================================================================== */
+
+const ADMIN_PASSCODE = 'melawi2026'; // ganti sebelum membagikan link ke publik
+const isFirebaseConfigured = !firebaseConfig.apiKey.startsWith('GANTI');
+
+let db = null;
+if(isFirebaseConfigured){
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.firestore();
+}
+
+/* ---------- STATE ---------- */
+let state = {
+  view: 'home',
+  dashTab: 'produk',
+  filterCat: 'Semua',
+  filterKec: 'Semua',
+  search: '',
+  sellers: [],
+  products: [],
+  orders: [],
+  reviews: [],
+  currentSeller: null,
+  isAdmin: false,
+  loading: true,
+  modalProduct: null,
+  buyerLookupPhone: '',
+  viewingShopId: null,
+  reviewOrderId: null,
+  reviewDraftRating: 5,
+  reviewDraftComment: '',
+};
+
+const CATEGORIES = ['Makanan','Sembako','Pertanian','Perikanan','Kerajinan','Fashion','Jasa','Elektronik'];
+const KECAMATAN = ['Nanga Pinoh','Pinoh Utara','Pinoh Selatan','Sokan','Belimbing','Ella Hilir','Menukung','Sayan','Tanah Pinoh'];
+const CAT_EMOJI = {Makanan:'🍲',Sembako:'🧺',Pertanian:'🌾',Perikanan:'🐟',Kerajinan:'🧶',Fashion:'👕',Jasa:'🛠️',Elektronik:'🔌'};
+
+/* ---------- STORAGE (Firestore) ---------- */
+async function loadAll(){
+  if(!isFirebaseConfigured){ state.loading=false; renderSetupScreen(); return; }
+  try{
+    const [sDoc, pDoc, oDoc, rDoc] = await Promise.all([
+      db.collection('melawi').doc('sellers').get(),
+      db.collection('melawi').doc('products').get(),
+      db.collection('melawi').doc('orders').get(),
+      db.collection('melawi').doc('reviews').get(),
+    ]);
+    state.sellers = sDoc.exists ? (sDoc.data().list || []) : [];
+    state.products = pDoc.exists ? (pDoc.data().list || []) : [];
+    state.orders = oDoc.exists ? (oDoc.data().list || []) : [];
+    state.reviews = rDoc.exists ? (rDoc.data().list || []) : [];
+    if(state.sellers.length === 0 && state.products.length === 0){
+      await seedDemoData();
+    }
+    listenLive();
+  }catch(e){
+    console.error('Gagal memuat data', e);
+    toast('Gagal memuat data dari Firestore. Cek koneksi & aturan keamanan Firestore Anda.');
+  }
+  state.loading = false;
+  render();
+}
+
+function listenLive(){
+  db.collection('melawi').doc('products').onSnapshot(doc=>{
+    if(doc.exists){ state.products = doc.data().list || []; render(); }
+  });
+  db.collection('melawi').doc('orders').onSnapshot(doc=>{
+    if(doc.exists){ state.orders = doc.data().list || []; render(); }
+  });
+  db.collection('melawi').doc('sellers').onSnapshot(doc=>{
+    if(doc.exists){ state.sellers = doc.data().list || []; render(); }
+  });
+  db.collection('melawi').doc('reviews').onSnapshot(doc=>{
+    if(doc.exists){ state.reviews = doc.data().list || []; render(); }
+  });
+}
+
+async function saveSellers(){ await db.collection('melawi').doc('sellers').set({list: state.sellers}); }
+async function saveProducts(){ await db.collection('melawi').doc('products').set({list: state.products}); }
+async function saveOrders(){ await db.collection('melawi').doc('orders').set({list: state.orders}); }
+async function saveReviews(){ await db.collection('melawi').doc('reviews').set({list: state.reviews}); }
+
+async function seedDemoData(){
+  const s = [
+    {id:'sel-1', name:'Sumi', shopName:'Kios Sembako Sumber Rezeki', kecamatan:'Nanga Pinoh', category:'Sembako', phone:'6281234500001'},
+    {id:'sel-2', name:'Pak De Nyoto', shopName:'Warung Ikan Sungai Melawi', kecamatan:'Sokan', category:'Perikanan', phone:'6281234500002'},
+    {id:'sel-3', name:'Anto', shopName:'Kebun Karet Pak Anto', kecamatan:'Belimbing', category:'Pertanian', phone:'6281234500003'},
+    {id:'sel-4', name:'Dayung', shopName:'Tenun Ikat Melawi Asri', kecamatan:'Ella Hilir', category:'Kerajinan', phone:'6281234500004'},
+    {id:'sel-5', name:'Mira', shopName:'Kios Fashion Melawi Kece', kecamatan:'Nanga Pinoh', category:'Fashion', phone:'6281234500005'},
+    {id:'sel-6', name:'Ratna', shopName:'Dapur Kue Bu Ratna', kecamatan:'Pinoh Utara', category:'Makanan', phone:'6281234500006'},
+    {id:'sel-7', name:'Jaya', shopName:'Bengkel Motor Jaya', kecamatan:'Sayan', category:'Jasa', phone:'6281234500007'},
+    {id:'sel-8', name:'Cepat', shopName:'Konter Pulsa & Aksesoris Cepat', kecamatan:'Menukung', category:'Elektronik', phone:'6281234500008'},
+    {id:'sel-9', name:'Rudi', shopName:'Kopi Robusta Melawi Asli', kecamatan:'Tanah Pinoh', category:'Pertanian', phone:'6281234500009'},
+    {id:'sel-10', name:'Wati', shopName:'Laundry Kilat Nanga Pinoh', kecamatan:'Nanga Pinoh', category:'Jasa', phone:'6281234500010'},
+  ];
+  const p = [
+    {id:'p1', sellerId:'sel-1', name:'Beras Lokal 5kg', price:63000, category:'Sembako', stock:20},
+    {id:'p2', sellerId:'sel-1', name:'Minyak Goreng 2L', price:31000, category:'Sembako', stock:15},
+    {id:'p3', sellerId:'sel-2', name:'Ikan Toman Segar 1kg', price:48000, category:'Perikanan', stock:10},
+    {id:'p4', sellerId:'sel-2', name:'Ikan Baung Segar 1kg', price:52000, category:'Perikanan', stock:8},
+    {id:'p5', sellerId:'sel-3', name:'Getah Karet Beku 1kg', price:8500, category:'Pertanian', stock:50},
+    {id:'p6', sellerId:'sel-3', name:'Madu Hutan Asli 500ml', price:85000, category:'Pertanian', stock:12},
+    {id:'p7', sellerId:'sel-4', name:'Kain Tenun Motif Melawi', price:350000, category:'Kerajinan', stock:5},
+    {id:'p8', sellerId:'sel-4', name:'Tas Anyaman Rotan', price:95000, category:'Kerajinan', stock:9},
+    {id:'p9', sellerId:'sel-5', name:'Kaos Motif Melawi', price:75000, category:'Fashion', stock:25},
+    {id:'p10', sellerId:'sel-5', name:'Sarung Batik Kalimantan', price:120000, category:'Fashion', stock:14},
+    {id:'p11', sellerId:'sel-6', name:'Kue Kering Toples', price:35000, category:'Makanan', stock:18},
+    {id:'p12', sellerId:'sel-6', name:'Amplang Ikan Khas Melawi', price:28000, category:'Makanan', stock:22},
+    {id:'p13', sellerId:'sel-7', name:'Servis Ringan Motor', price:50000, category:'Jasa', stock:99},
+    {id:'p14', sellerId:'sel-7', name:'Ganti Oli + Jasa Pasang', price:65000, category:'Jasa', stock:99},
+    {id:'p15', sellerId:'sel-8', name:'Pulsa All Operator 50rb', price:52000, category:'Elektronik', stock:99},
+    {id:'p16', sellerId:'sel-8', name:'Casing HP Universal', price:25000, category:'Elektronik', stock:30},
+    {id:'p17', sellerId:'sel-9', name:'Kopi Bubuk Robusta 250gr', price:27000, category:'Pertanian', stock:20},
+    {id:'p18', sellerId:'sel-9', name:'Kopi Biji Sangrai 250gr', price:30000, category:'Pertanian', stock:16},
+    {id:'p19', sellerId:'sel-10', name:'Cuci Kering Setrika /kg', price:8000, category:'Jasa', stock:99},
+    {id:'p20', sellerId:'sel-10', name:'Cuci Selimut / Bed Cover', price:25000, category:'Jasa', stock:99},
+  ];
+  const demoOrders = [
+    {id:'ORD-demo1', productId:'p1', sellerId:'sel-1', buyerName:'Budi', buyerPhone:'6281111111111', qty:2, note:'', status:'selesai', createdAt: Date.now()-86400000*3},
+    {id:'ORD-demo2', productId:'p7', sellerId:'sel-4', buyerName:'Sari', buyerPhone:'6282222222222', qty:1, note:'', status:'selesai', createdAt: Date.now()-86400000*5},
+  ];
+  const demoReviews = [
+    {id:'rev-1', orderId:'ORD-demo1', sellerId:'sel-1', buyerName:'Budi', rating:5, comment:'Barang lengkap, respon cepat. Terima kasih!', createdAt: Date.now()-86400000*2},
+    {id:'rev-2', orderId:'ORD-demo2', sellerId:'sel-4', buyerName:'Sari', rating:4, comment:'Kain tenunnya bagus, pengiriman agak lama.', createdAt: Date.now()-86400000*4},
+  ];
+  state.sellers = s;
+  state.products = p;
+  state.orders = demoOrders;
+  state.reviews = demoReviews;
+  await saveSellers(); await saveProducts(); await saveOrders(); await saveReviews();
+  toast('Data contoh dimuat — nomor WA di sini hanyalah contoh, bukan nomor asli.');
+}
+
+/* ---------- UTIL ---------- */
+function fmtRp(n){ return 'Rp' + Number(n).toLocaleString('id-ID'); }
+function genId(prefix){ return prefix + '-' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function sellerOf(id){ return state.sellers.find(s=>s.id===id); }
+function productOf(id){ return state.products.find(p=>p.id===id); }
+function toast(msg){
+  const el = document.createElement('div');
+  el.className='toast'; el.textContent=msg;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(), 4200);
+}
+function waLink(phone, text){ return 'https://wa.me/'+phone+'?text='+encodeURIComponent(text); }
+function reviewsOf(sellerId){ return state.reviews.filter(r=>r.sellerId===sellerId).sort((a,b)=>b.createdAt-a.createdAt); }
+function ratingStats(sellerId){
+  const rs = reviewsOf(sellerId);
+  if(!rs.length) return {avg:0, count:0};
+  const avg = rs.reduce((sum,r)=>sum+r.rating,0)/rs.length;
+  return {avg, count: rs.length};
+}
+function starsHtml(avg, size){
+  size = size || 13;
+  let out = '<span class="stars" style="font-size:'+size+'px;">';
+  for(let i=1;i<=5;i++){ out += (i <= Math.round(avg)) ? '★' : '☆'; }
+  out += '</span>';
+  return out;
+}
+
+/* ---------- NAVIGATION (with real browser back/forward) ---------- */
+function goto(view, opts){
+  opts = opts || {};
+  state.view = view; state.modalProduct = null;
+  if(!opts.silent){ history.pushState({view: view}, '', '#'+view); }
+  render();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function goBack(){ history.back(); }
+window.addEventListener('popstate', (e)=>{
+  state.view = (e.state && e.state.view) || 'home';
+  state.modalProduct = null;
+  render();
+});
+
+/* ---------- ACTIONS ---------- */
+async function registerSeller(formData){
+  const seller = {
+    id: genId('seller'),
+    name: formData.get('name'),
+    shopName: formData.get('shopName'),
+    kecamatan: formData.get('kecamatan'),
+    category: formData.get('category'),
+    phone: formData.get('phone').replace(/\D/g,''),
+    createdAt: Date.now()
+  };
+  state.sellers.push(seller);
+  try{ await saveSellers(); }catch(e){ toast('Gagal menyimpan toko. Coba lagi.'); return; }
+  state.currentSeller = seller;
+  toast('Toko "'+seller.shopName+'" berhasil didaftarkan!');
+  goto('seller-dashboard');
+}
+
+async function loginSeller(phone){
+  const clean = phone.replace(/\D/g,'');
+  const found = state.sellers.find(s=>s.phone===clean);
+  if(!found){ toast('Nomor belum terdaftar sebagai toko. Silakan daftar dulu.'); return; }
+  state.currentSeller = found;
+  goto('seller-dashboard');
+}
+
+async function addProduct(formData){
+  const prod = {
+    id: genId('prod'),
+    sellerId: state.currentSeller.id,
+    name: formData.get('name'),
+    price: Number(formData.get('price')),
+    category: formData.get('category'),
+    stock: Number(formData.get('stock')) || 0,
+  };
+  state.products.push(prod);
+  try{ await saveProducts(); }catch(e){ toast('Gagal menyimpan produk.'); return; }
+  toast('Produk "'+prod.name+'" ditambahkan.');
+  render();
+}
+
+async function placeOrder(formData, product){
+  const order = {
+    id: genId('ORD'),
+    productId: product.id,
+    sellerId: product.sellerId,
+    buyerName: formData.get('buyerName'),
+    buyerPhone: formData.get('buyerPhone').replace(/\D/g,''),
+    qty: Number(formData.get('qty')) || 1,
+    note: formData.get('note') || '',
+    status: 'menunggu',
+    createdAt: Date.now()
+  };
+  state.orders.push(order);
+  try{ await saveOrders(); }catch(e){ toast('Gagal mengirim pesanan. Coba lagi.'); return; }
+  toast('Pesanan terkirim! ID: '+order.id+'. Tunggu konfirmasi penjual.');
+  state.buyerLookupPhone = order.buyerPhone;
+  goto('buyer-orders');
+}
+
+async function updateOrderStatus(orderId, status){
+  const o = state.orders.find(x=>x.id===orderId);
+  if(!o) return;
+  o.status = status;
+  try{ await saveOrders(); }catch(e){ toast('Gagal memperbarui status.'); return; }
+  render();
+}
+
+async function submitReview(formData, order){
+  const review = {
+    id: genId('rev'),
+    orderId: order.id,
+    sellerId: order.sellerId,
+    buyerName: order.buyerName,
+    rating: Number(formData.get('rating')) || 5,
+    comment: formData.get('comment') || '',
+    createdAt: Date.now()
+  };
+  state.reviews.push(review);
+  try{ await saveReviews(); }catch(e){ toast('Gagal mengirim ulasan.'); return; }
+  toast('Terima kasih atas ulasannya!');
+  state.reviewOrderId = null; state.reviewDraftRating = 5; state.reviewDraftComment = '';
+  render();
+}
+
+function adminLogin(passcode){
+  if(passcode === ADMIN_PASSCODE){ state.isAdmin = true; goto('admin-panel'); }
+  else { toast('Passcode salah.'); }
+}
+
+/* ---------- RENDER ---------- */
+function renderSetupScreen(){
+  document.getElementById('app').innerHTML = `
+  <div class="setup-screen">
+    <div class="form-card">
+      <h2>Firebase belum diatur</h2>
+      <div class="sub">Isi <code>firebaseConfig</code> di bagian atas kode halaman ini supaya data toko, produk, dan pesanan tersimpan sungguhan.</div>
+      <ol>
+        <li>Buka <code>console.firebase.google.com</code>, buat project baru (gratis).</li>
+        <li>Buka <b>Build &gt; Firestore Database</b> &gt; Create database &gt; mulai di <b>test mode</b>.</li>
+        <li>Buka <b>Project settings</b> &gt; scroll ke "Your apps" &gt; klik ikon web (&lt;/&gt;) &gt; daftarkan app.</li>
+        <li>Salin nilai <code>firebaseConfig</code> yang muncul ke bagian atas file HTML ini.</li>
+        <li>Simpan file, buka lagi di browser.</li>
+      </ol>
+    </div>
+  </div>`;
+}
+
+function render(){
+  const app = document.getElementById('app');
+  if(state.loading){ app.innerHTML = '<div style="padding:80px;text-align:center;color:#5B5145;">Memuat MelawiNiaga...</div>'; return; }
+  const modalHtml = state.reviewOrderId ? reviewModal(state.reviewOrderId) : (state.modalProduct ? orderModal(state.modalProduct) : '');
+  app.innerHTML = nav() + `<div class="view-fade">${body()}</div>` + modalHtml + footerHtml();
+  bindEvents();
+}
+
+function nav(){
+  return `
+  <div class="nav">
+    <div class="nav-brand" data-goto="home">
+      <span class="word">MelawiNiaga</span>
+      <span class="tag">Ekosistem Digital Masyarakat Melawi</span>
+    </div>
+    <div class="nav-pill">
+      <button class="nav-btn ${state.view==='buyer-browse'?'active':''}" data-goto="buyer-browse">Belanja</button>
+      <button class="nav-btn ${state.view==='how-it-works'?'active':''}" data-goto="how-it-works">Cara Kerja</button>
+      <button class="nav-btn ${state.view==='about'?'active':''}" data-goto="about">Tentang</button>
+      <button class="nav-btn ${state.view.startsWith('seller')?'active':''}" data-goto="${state.currentSeller?'seller-dashboard':'seller-auth'}">${state.currentSeller ? 'Dashboard Toko' : 'Jadi Penjual'}</button>
+    </div>
+  </div>`;
+}
+
+function backBtn(){
+  return `<div class="back-wrap"><button class="back-btn" onclick="goBack()">&larr; Kembali</button></div>`;
+}
+
+function body(){
+  if(state.view==='home') return homeView();
+  if(state.view==='buyer-browse') return backBtn()+buyerBrowseView();
+  if(state.view==='buyer-orders') return backBtn()+buyerOrdersView();
+  if(state.view==='shop-detail') return backBtn()+shopDetailView();
+  if(state.view==='seller-auth') return backBtn()+sellerAuthView();
+  if(state.view==='seller-register') return backBtn()+sellerRegisterView();
+  if(state.view==='seller-dashboard') return backBtn()+sellerDashboardView();
+  if(state.view==='how-it-works') return backBtn()+howItWorksView();
+  if(state.view==='about') return backBtn()+aboutView();
+  if(state.view==='admin-login') return backBtn()+adminLoginView();
+  if(state.view==='admin-panel') return backBtn()+(state.isAdmin ? adminPanelView() : adminLoginView());
+  return '';
+}
+
+function homeView(){
+  return `
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="eyebrow">Tahap Validasi &middot; Pesanan Gratis</div>
+      <h1>Pesan lewat sistem, bukan sekadar chat lalu hilang.</h1>
+      <p>MelawiNiaga menghubungkan pembeli dan toko lokal Melawi — karet, hasil sungai, tenun, kopi, sampai jasa harian — lewat satu prosedur yang jelas.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" data-goto="buyer-browse">Mulai Belanja</button>
+        <button class="btn-secondary" data-goto="seller-auth">Daftarkan Toko Saya</button>
+      </div>
+    </div>
+    <svg class="wave" viewBox="0 0 1200 60" preserveAspectRatio="none">
+      <path d="M0,36 C300,66 900,6 1200,36 L1200,60 L0,60 Z" fill="#1A423D" opacity="0.55"></path>
+      <path d="M0,30 C300,60 900,0 1200,30 L1200,60 L0,60 Z" fill="#F3EEE0"></path>
+    </svg>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="num">${state.sellers.length}</div><div class="lbl">Toko Terdaftar</div></div>
+    <div class="stat"><div class="num">${state.products.length}</div><div class="lbl">Produk Tersedia</div></div>
+    <div class="stat"><div class="num">${new Set(state.sellers.map(s=>s.kecamatan)).size}</div><div class="lbl">Kecamatan Terjangkau</div></div>
+    <div class="stat"><div class="num">${state.orders.length}</div><div class="lbl">Pesanan Diproses</div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <h2>Cara Kerja</h2>
+      <p>Semua transaksi wajib melewati tiga langkah ini — bukan langsung loncat ke chat pribadi.</p>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="step-num">01</div><h3>Pembeli pesan lewat sistem</h3><p>Pilih produk dan kirim pesanan langsung dari MelawiNiaga, lengkap dengan catatan jumlah dan kebutuhan.</p></div>
+      <div class="step"><div class="step-num">02</div><h3>Penjual konfirmasi di dashboard</h3><p>Toko menerima pesanan masuk, mengecek stok, lalu menerima atau menolak dari dashboard tokonya.</p></div>
+      <div class="step"><div class="step-num">03</div><h3>Kontak dibuka untuk selesaikan transaksi</h3><p>Setelah dikonfirmasi, nomor WhatsApp penjual terbuka untuk atur pembayaran dan pengiriman.</p></div>
+    </div>
+  </div>
+
+  <div class="section" style="padding-top:0;">
+    <div class="cta-band">
+      <div>
+        <h3>Punya toko di Melawi?</h3>
+        <p>Daftar gratis, produk tanpa batas selama tahap validasi ini. Kami bantu foto produk dan promosi awal.</p>
+      </div>
+      <button class="btn-primary" data-goto="seller-auth">Daftar Sekarang</button>
+    </div>
+  </div>
+  `;
+}
+
+function howItWorksView(){
+  return `
+  <div class="section" style="padding-top:20px;">
+    <div class="section-head">
+      <h2>Cara Kerja MelawiNiaga</h2>
+      <p>Kenapa harus lewat sistem, dan apa yang terjadi di tiap langkah.</p>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="step-num">01</div><h3>Pembeli pesan lewat sistem</h3><p>Pesanan tercatat rapi dengan ID unik, bukan hilang di tumpukan chat WhatsApp toko.</p></div>
+      <div class="step"><div class="step-num">02</div><h3>Penjual konfirmasi di dashboard</h3><p>Toko bisa terima atau tolak sesuai stok — tidak ada pesanan yang kelewatan.</p></div>
+      <div class="step"><div class="step-num">03</div><h3>Kontak dibuka via WhatsApp</h3><p>Pembayaran dan pengiriman diatur langsung antara pembeli dan penjual, di luar sistem.</p></div>
+    </div>
+    <div class="form-card" style="max-width:640px;margin-top:36px;border:2px solid var(--danger);">
+      <h2 style="font-size:17px;color:var(--danger);">⚠ Tips Aman Bertransaksi — Wajib Dibaca</h2>
+      <ul style="font-size:13.5px;color:var(--ink-soft);line-height:1.85;padding-left:20px;margin-top:10px;">
+        <li><b style="color:var(--ink);">Jangan transfer uang penuh sebelum barang diterima atau diperiksa langsung.</b> Usahakan bayar saat barang sudah di tangan Anda (bayar di tempat).</li>
+        <li>Kalau tidak memungkinkan bertemu langsung, minta foto atau video terbaru barangnya sebelum membayar apa pun.</li>
+        <li>Waspada bila lawan transaksi terburu-buru, menolak dihubungi lewat telepon/video call, atau menawarkan harga jauh di bawah pasar.</li>
+        <li>MelawiNiaga hanya menjadi penengah pesanan, <b style="color:var(--ink);">bukan penjamin transaksi</b> — kami tidak dapat mengembalikan uang bila terjadi penipuan di luar sistem.</li>
+        <li>Menemukan penjual atau pembeli yang mencurigakan? Laporkan lewat halaman <button class="link-btn" data-goto="about">Tentang</button> supaya bisa kami tindak lanjuti.</li>
+      </ul>
+    </div>
+
+    <div class="form-card" style="max-width:640px;margin-top:24px;">
+      <h2 style="font-size:17px;">Kenapa pembayaran tidak lewat aplikasi?</h2>
+      <p style="font-size:13.5px;color:var(--ink-soft);margin:8px 0 0;">Menyimpan atau memproses pembayaran orang lain diatur oleh Bank Indonesia/OJK. Selama tahap validasi ini, MelawiNiaga hanya menjadi penengah pesanan — bukan penyimpan uang — supaya bisa berjalan legal tanpa izin khusus dulu.</p>
+    </div>
+  </div>`;
+}
+
+function aboutView(){
+  return `
+  <div class="section" style="padding-top:20px;">
+    <div class="form-card" style="max-width:560px;">
+      <h2>Tentang MelawiNiaga</h2>
+      <p style="font-size:13.5px;color:var(--ink-soft);line-height:1.7;">MelawiNiaga dibangun untuk membantu toko dan usaha kecil di Kabupaten Melawi mendapat lebih banyak pelanggan, dan membantu warga menemukan produk lokal tanpa harus keliling pasar. Saat ini masih tahap validasi — gratis untuk semua toko, dan kami secara aktif mencari toko-toko pertama untuk diajak bergabung langsung.</p>
+      <div class="field" style="margin-top:20px;">
+        <label>Hubungi Admin</label>
+        <a class="btn-sm btn-wa" style="width:100%;text-align:center;" href="${waLink('6281234500000','Halo Admin MelawiNiaga, saya ingin bertanya tentang platform ini.')}" target="_blank">Chat via WhatsApp</a>
+      </div>
+      <p style="font-size:11.5px;color:var(--ink-soft);margin-top:14px;">*Nomor admin di atas contoh — ganti dengan nomor asli sebelum digunakan.</p>
+    </div>
+  </div>`;
+}
+
+function buyerBrowseView(){
+  let list = state.products.filter(p=>{
+    const s = sellerOf(p.sellerId);
+    const matchCat = state.filterCat==='Semua' || p.category===state.filterCat;
+    const matchKec = state.filterKec==='Semua' || (s && s.kecamatan===state.filterKec);
+    const matchSearch = !state.search || p.name.toLowerCase().includes(state.search.toLowerCase());
+    return matchCat && matchKec && matchSearch;
+  });
+  return `
+  <div class="section" style="padding-top:16px;">
+    <div class="section-head" style="margin-bottom:20px;">
+      <h2>Belanja Produk Lokal Melawi</h2>
+      <p>Pesan lewat sistem — toko akan konfirmasi sebelum kontak dibuka.</p>
+    </div>
+    <div class="toolbar">
+      <input class="search-input" id="searchInput" placeholder="Cari produk..." value="${state.search}">
+      <select class="select-input" id="kecInput">
+        <option value="Semua">Semua Kecamatan</option>
+        ${KECAMATAN.map(k=>`<option ${state.filterKec===k?'selected':''}>${k}</option>`).join('')}
+      </select>
+      <button class="link-btn" data-goto="buyer-orders" style="white-space:nowrap;">Lacak Pesanan Saya &rarr;</button>
+    </div>
+    <div class="toolbar" style="margin-bottom:24px;">
+      <button class="chip ${state.filterCat==='Semua'?'active':''}" data-cat="Semua">Semua</button>
+      ${CATEGORIES.map(c=>`<button class="chip ${state.filterCat===c?'active':''}" data-cat="${c}">${c}</button>`).join('')}
+    </div>
+    <div class="grid">
+      ${list.length ? list.map(p=>{
+        const s = sellerOf(p.sellerId);
+        const stats = ratingStats(p.sellerId);
+        return `
+        <div class="prod-card">
+          <div class="prod-thumb">${CAT_EMOJI[p.category]||'🛍️'}</div>
+          <div class="prod-body">
+            <button class="prod-shop shop-link" data-shop="${p.sellerId}">${s ? s.shopName : 'Toko'}</button>
+            ${stats.count ? `<div class="rating-line">${starsHtml(stats.avg,12)}<span>${stats.avg.toFixed(1)} (${stats.count})</span></div>` : `<div class="rating-line">Belum ada ulasan</div>`}
+            <div class="prod-name">${p.name}</div>
+            <div class="prod-loc">📍 ${s ? s.kecamatan : '-'}</div>
+            <div class="prod-price">${fmtRp(p.price)}</div>
+            <button class="prod-buy" data-order="${p.id}">Pesan Sekarang</button>
+          </div>
+        </div>`;
+      }).join('') : '<div class="empty"><span class="eicon">🛶</span>Belum ada produk yang cocok dengan filter ini.</div>'}
+    </div>
+  </div>`;
+}
+
+function shopDetailView(){
+  const s = sellerOf(state.viewingShopId);
+  if(!s) return '<div class="section"><div class="empty"><span class="eicon">🛶</span>Toko tidak ditemukan.</div></div>';
+  const myProducts = state.products.filter(p=>p.sellerId===s.id);
+  const stats = ratingStats(s.id);
+  const revs = reviewsOf(s.id);
+  return `
+  <div class="section" style="padding-top:16px;">
+    <div class="shop-header">
+      <h2>${s.shopName}</h2>
+      <p style="color:var(--ink-soft);font-size:13.5px;margin-top:4px;">${s.kecamatan} &middot; ${s.category}</p>
+      <div class="rating-line" style="margin-top:12px;font-size:13px;">
+        ${starsHtml(stats.avg,17)}
+        <span>${stats.count ? stats.avg.toFixed(1)+' dari '+stats.count+' ulasan' : 'Belum ada ulasan'}</span>
+      </div>
+    </div>
+    <div class="section-head" style="margin-bottom:16px;"><h2 style="font-size:18px;">Produk dari toko ini</h2></div>
+    <div class="grid" style="margin-bottom:44px;">
+      ${myProducts.length ? myProducts.map(p=>`
+        <div class="prod-card">
+          <div class="prod-thumb">${CAT_EMOJI[p.category]||'🛍️'}</div>
+          <div class="prod-body">
+            <div class="prod-name">${p.name}</div>
+            <div class="prod-price">${fmtRp(p.price)}</div>
+            <button class="prod-buy" data-order="${p.id}">Pesan Sekarang</button>
+          </div>
+        </div>`).join('') : '<div class="empty">Belum ada produk.</div>'}
+    </div>
+    <div class="section-head" style="margin-bottom:16px;"><h2 style="font-size:18px;">Ulasan Pembeli</h2></div>
+    <div class="simple-list">
+      ${revs.length ? revs.map(r=>`
+        <div class="review-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span class="rname">${r.buyerName}</span>
+            ${starsHtml(r.rating,13)}
+          </div>
+          <div class="rdate">${new Date(r.createdAt).toLocaleDateString('id-ID')}</div>
+          ${r.comment ? `<div class="rcomment">"${r.comment}"</div>` : ''}
+        </div>`).join('') : '<div class="empty"><span class="eicon">🛶</span>Belum ada ulasan untuk toko ini.</div>'}
+    </div>
+  </div>`;
+}
+
+function reviewModal(orderId){
+  const o = state.orders.find(x=>x.id===orderId);
+  if(!o) return '';
+  const p = productOf(o.productId);
+  const s = sellerOf(o.sellerId);
+  const rating = state.reviewDraftRating || 5;
+  return `
+  <div class="overlay" id="reviewOverlay">
+    <div class="modal">
+      <button class="modal-close" id="closeReviewModal">&times;</button>
+      <h3>Beri Ulasan untuk ${s?s.shopName:'-'}</h3>
+      <div class="sub">Pesanan: ${p?p.name:'-'} &middot; ${o.id}</div>
+      <div class="star-picker">
+        ${[1,2,3,4,5].map(n=>`<span class="star ${n<=rating?'filled':''}" data-star="${n}">★</span>`).join('')}
+      </div>
+      <form id="reviewForm">
+        <input type="hidden" name="rating" value="${rating}">
+        <div class="field"><label>Komentar (opsional)</label><textarea id="reviewComment" name="comment" placeholder="Bagaimana pengalaman belanja Anda?">${state.reviewDraftComment||''}</textarea></div>
+        <button type="submit" class="form-submit">Kirim Ulasan</button>
+      </form>
+    </div>
+  </div>`;
+}
+
+function orderModal(productId){
+  const p = productOf(productId);
+  if(!p) return '';
+  const s = sellerOf(p.sellerId);
+  return `
+  <div class="overlay" id="modalOverlay">
+    <div class="modal">
+      <button class="modal-close" id="closeModal">&times;</button>
+      <h3>Pesan: ${p.name}</h3>
+      <div class="sub">Dari ${s?s.shopName:'-'} &middot; ${fmtRp(p.price)} / item. Pesanan ini akan dikirim ke penjual untuk dikonfirmasi.</div>
+      <form id="orderForm">
+        <div class="field"><label>Nama Anda</label><input name="buyerName" required></div>
+        <div class="field"><label>Nomor WhatsApp Anda</label><input name="buyerPhone" required placeholder="08xxxxxxxxxx"></div>
+        <div class="field"><label>Jumlah</label><input name="qty" type="number" min="1" value="1" required></div>
+        <div class="field"><label>Catatan (opsional)</label><textarea name="note" placeholder="Contoh: diantar sore hari"></textarea></div>
+        <button type="submit" class="form-submit">Kirim Pesanan</button>
+      </form>
+      <p style="font-size:11.5px;color:var(--danger);margin-top:14px;line-height:1.6;">⚠ Jangan transfer uang sebelum barang diterima atau diperiksa langsung, meskipun sudah dikonfirmasi penjual.</p>
+    </div>
+  </div>`;
+}
+
+function buyerOrdersView(){
+  const matched = state.buyerLookupPhone ? state.orders.filter(o=>o.buyerPhone===state.buyerLookupPhone.replace(/\D/g,'')) : [];
+  return `
+  <div class="section" style="padding-top:16px;">
+    <div class="section-head" style="margin-bottom:20px;">
+      <h2>Lacak Pesanan Saya</h2>
+      <p>Masukkan nomor WhatsApp yang dipakai saat memesan.</p>
+    </div>
+    <div class="toolbar" style="max-width:420px;">
+      <input class="search-input" id="lookupInput" placeholder="08xxxxxxxxxx" value="${state.buyerLookupPhone}">
+      <button class="nav-btn active" id="lookupBtn">Cari</button>
+    </div>
+    <div class="simple-list">
+      ${matched.length ? matched.map(o=>orderSlip(o,false)).join('') : (state.buyerLookupPhone ? '<div class="empty"><span class="eicon">🛶</span>Tidak ada pesanan dengan nomor ini.</div>' : '')}
+    </div>
+  </div>`;
+}
+
+function orderSlip(o, sellerView){
+  const p = productOf(o.productId);
+  const s = sellerOf(o.sellerId);
+  const statusLabel = {menunggu:'Menunggu Konfirmasi', dikonfirmasi:'Dikonfirmasi', selesai:'Selesai', ditolak:'Ditolak'}[o.status];
+  let actions = '';
+  if(sellerView && o.status==='menunggu'){
+    actions = `<div class="order-actions">
+      <button class="btn-sm btn-confirm" data-confirm="${o.id}">Terima Pesanan</button>
+      <button class="btn-sm btn-reject" data-reject="${o.id}">Tolak</button>
+    </div>`;
+  } else if(sellerView && o.status==='dikonfirmasi'){
+    actions = `
+      <div class="warn-box" style="background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger);">⚠ Jangan minta pembeli transfer sebelum barang diserahkan atau diperiksa langsung. Baca <button class="link-btn" style="color:var(--danger);font-size:12.5px;" data-goto="how-it-works">tips aman bertransaksi</button>.</div>
+      <div class="order-actions">
+      <a class="btn-sm btn-wa" href="${waLink(o.buyerPhone, 'Halo '+o.buyerName+', pesanan '+ (p?p.name:'') +' Anda sudah kami konfirmasi. Mari atur pembayaran & pengiriman.')}" target="_blank">Hubungi Pembeli via WA</a>
+      <button class="btn-sm btn-done" data-done="${o.id}">Tandai Selesai</button>
+    </div>`;
+  } else if(!sellerView && o.status==='dikonfirmasi'){
+    actions = `
+      <div class="warn-box" style="background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger);">⚠ Jangan transfer sebelum barang diterima atau diperiksa langsung. Baca <button class="link-btn" style="color:var(--danger);font-size:12.5px;" data-goto="how-it-works">tips aman bertransaksi</button>.</div>
+      <div class="order-actions">
+      <a class="btn-sm btn-wa" href="${waLink(s?s.phone:'', 'Halo, saya '+o.buyerName+', ingin lanjut pesanan '+o.id+' ('+ (p?p.name:'') +') di MelawiNiaga.')}" target="_blank">Hubungi Toko via WA</a>
+    </div>`;
+  } else if(!sellerView && o.status==='selesai'){
+    const already = state.reviews.some(r=>r.orderId===o.id);
+    actions = already
+      ? `<div class="order-row" style="color:var(--success);font-size:12.5px;">✓ Anda sudah memberi ulasan</div>`
+      : `<div class="order-actions"><button class="btn-sm btn-wa" data-review="${o.id}">Beri Ulasan</button></div>`;
+  }
+  return `
+  <div class="order-slip">
+    <div class="order-top">
+      <div>
+        <div class="order-id">${o.id}</div>
+        <div style="font-size:11px;color:var(--ink-soft);margin-top:2px;">${new Date(o.createdAt).toLocaleString('id-ID')}</div>
+      </div>
+      <span class="badge ${o.status}">${statusLabel}</span>
+    </div>
+    <div class="order-row"><b>${p ? p.name : 'Produk dihapus'}</b> &times; ${o.qty}</div>
+    <div class="order-row">Toko: ${s ? s.shopName : '-'}</div>
+    ${sellerView ? `<div class="order-row">Pembeli: ${o.buyerName} (${o.buyerPhone})</div>` : ''}
+    ${o.note ? `<div class="order-row" style="color:var(--ink-soft);font-style:italic;">"${o.note}"</div>` : ''}
+    ${actions}
+  </div>`;
+}
+
+function sellerAuthView(){
+  return `
+  <div class="section" style="padding-top:24px;">
+    <div class="form-card">
+      <h2>Masuk sebagai Penjual</h2>
+      <div class="sub">Masukkan nomor WhatsApp toko yang sudah terdaftar.</div>
+      <form id="loginForm">
+        <div class="field"><label>Nomor WhatsApp Toko</label><input name="phone" required placeholder="08xxxxxxxxxx"></div>
+        <button type="submit" class="form-submit">Masuk</button>
+      </form>
+      <div style="text-align:center;margin-top:16px;font-size:13px;color:var(--ink-soft);">
+        Belum punya toko? <button class="link-btn" data-goto="seller-register">Daftar toko baru</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function sellerRegisterView(){
+  return `
+  <div class="section" style="padding-top:24px;">
+    <div class="form-card">
+      <h2>Daftarkan Toko Anda</h2>
+      <div class="sub">Gratis, produk tanpa batas selama tahap validasi. Pesanan pembeli akan langsung masuk ke dashboard toko Anda.</div>
+      <form id="registerForm">
+        <div class="field"><label>Nama Anda</label><input name="name" required></div>
+        <div class="field"><label>Nama Toko</label><input name="shopName" required></div>
+        <div class="field"><label>Kecamatan</label>
+          <select name="kecamatan" required>${KECAMATAN.map(k=>`<option>${k}</option>`).join('')}</select>
+        </div>
+        <div class="field"><label>Kategori Utama</label>
+          <select name="category" required>${CATEGORIES.map(c=>`<option>${c}</option>`).join('')}</select>
+        </div>
+        <div class="field"><label>Nomor WhatsApp</label><input name="phone" required placeholder="08xxxxxxxxxx"></div>
+        <button type="submit" class="form-submit">Daftar Toko</button>
+      </form>
+    </div>
+  </div>`;
+}
+
+function sellerDashboardView(){
+  const cs = state.currentSeller;
+  if(!cs) return sellerAuthView();
+  const myProducts = state.products.filter(p=>p.sellerId===cs.id);
+  const myOrders = state.orders.filter(o=>o.sellerId===cs.id).sort((a,b)=>b.createdAt-a.createdAt);
+  return `
+  <div class="section" style="padding-top:16px;">
+    <div class="section-head" style="margin-bottom:16px;">
+      <h2>${cs.shopName}</h2>
+      <p>${cs.kecamatan} &middot; ${cs.category}</p>
+      <div class="rating-line" style="justify-content:center;margin-top:8px;">${starsHtml(ratingStats(cs.id).avg,14)}<span>${ratingStats(cs.id).count ? ratingStats(cs.id).avg.toFixed(1)+' dari '+ratingStats(cs.id).count+' ulasan' : 'Belum ada ulasan'}</span></div>
+    </div>
+    <div class="dash-tabs">
+      <button class="dash-tab ${state.dashTab==='produk'?'active':''}" data-tab="produk">Produk Saya (${myProducts.length})</button>
+      <button class="dash-tab ${state.dashTab==='pesanan'?'active':''}" data-tab="pesanan">Pesanan Masuk (${myOrders.filter(o=>o.status==='menunggu').length} baru)</button>
+    </div>
+    ${state.dashTab==='produk' ? `
+      <div class="form-card" style="margin-bottom:24px;">
+        <h2 style="font-size:16px;">Tambah Produk</h2>
+        <form id="addProductForm">
+          <div class="field"><label>Nama Produk</label><input name="name" required></div>
+          <div class="field"><label>Harga (Rp)</label><input name="price" type="number" min="0" required></div>
+          <div class="field"><label>Kategori</label><select name="category">${CATEGORIES.map(c=>`<option ${c===cs.category?'selected':''}>${c}</option>`).join('')}</select></div>
+          <div class="field"><label>Stok</label><input name="stock" type="number" min="0" value="10"></div>
+          <button type="submit" class="form-submit">Simpan Produk</button>
+        </form>
+      </div>
+      <div class="simple-list">
+        ${myProducts.length ? myProducts.map(p=>`<div class="prod-row"><span class="pn">${p.name}</span><span class="pp">${fmtRp(p.price)}</span></div>`).join('') : '<div class="empty"><span class="eicon">🛶</span>Belum ada produk. Tambahkan produk pertama Anda.</div>'}
+      </div>
+    ` : `
+      <div class="simple-list">
+        ${myOrders.length ? myOrders.map(o=>orderSlip(o,true)).join('') : '<div class="empty"><span class="eicon">🛶</span>Belum ada pesanan masuk.</div>'}
+      </div>
+    `}
+  </div>`;
+}
+
+function adminLoginView(){
+  return `
+  <div class="section" style="padding-top:36px;">
+    <div class="form-card">
+      <h2>Masuk Admin</h2>
+      <div class="sub">Khusus pemilik platform MelawiNiaga.</div>
+      <div class="warn-box">Ini proteksi ringan di sisi browser, bukan sistem login yang aman. Siapa pun yang membaca kode sumber halaman ini bisa menemukan passcode-nya.</div>
+      <form id="adminLoginForm">
+        <div class="field"><label>Passcode Admin</label><input name="passcode" type="password" required></div>
+        <button type="submit" class="form-submit">Masuk</button>
+      </form>
+    </div>
+  </div>`;
+}
+
+function adminPanelView(){
+  const byStatus = {menunggu:0,dikonfirmasi:0,selesai:0,ditolak:0};
+  state.orders.forEach(o=> byStatus[o.status] = (byStatus[o.status]||0)+1 );
+  const recentOrders = state.orders.slice().sort((a,b)=>b.createdAt-a.createdAt).slice(0,10);
+  return `
+  <div class="section" style="padding-top:16px;">
+    <div class="section-head" style="margin-bottom:24px;">
+      <h2>Panel Admin</h2>
+      <p>Pantau aktivitas platform secara langsung.</p>
+    </div>
+    <div class="stats" style="margin:0 auto 30px;max-width:900px;position:static;box-shadow:none;">
+      <div class="stat"><div class="num">${state.sellers.length}</div><div class="lbl">Total Toko</div></div>
+      <div class="stat"><div class="num">${state.products.length}</div><div class="lbl">Total Produk</div></div>
+      <div class="stat"><div class="num">${byStatus.menunggu||0}</div><div class="lbl">Pesanan Menunggu</div></div>
+      <div class="stat"><div class="num">${byStatus.selesai||0}</div><div class="lbl">Pesanan Selesai</div></div>
+    </div>
+
+    <h3 style="max-width:900px;margin:0 auto 12px;font-size:16px;">Daftar Toko</h3>
+    <div class="admin-table">
+      ${state.sellers.map(s=>`
+        <div class="admin-row">
+          <div>
+            <div class="an">${s.shopName}</div>
+            <div class="aloc">${s.kecamatan} &middot; ${s.category} &middot; ${s.phone} &middot; ${ratingStats(s.id).count ? ratingStats(s.id).avg.toFixed(1)+'★ ('+ratingStats(s.id).count+')' : 'belum ada ulasan'}</div>
+          </div>
+        </div>`).join('')}
+    </div>
+
+    <h3 style="max-width:900px;margin:0 auto 12px;font-size:16px;">10 Pesanan Terbaru</h3>
+    <div class="simple-list">
+      ${recentOrders.length ? recentOrders.map(o=>orderSlip(o,true)).join('') : '<div class="empty"><span class="eicon">🛶</span>Belum ada pesanan.</div>'}
+    </div>
+  </div>`;
+}
+
+function footerHtml(){
+  return `<footer>MelawiNiaga &middot; Prototipe tahap validasi. Pembayaran &amp; pengiriman masih diatur manual antara pembeli dan penjual via WhatsApp setelah pesanan dikonfirmasi.
+  <button class="admin-link" data-goto="${state.isAdmin?'admin-panel':'admin-login'}">Kelola platform (khusus admin)</button>
+  </footer>`;
+}
+
+/* ---------- EVENTS ---------- */
+function bindEvents(){
+  document.querySelectorAll('[data-goto]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      if(el.tagName==='A' && el.getAttribute('href') && el.getAttribute('href')!=='#') return;
+      goto(el.getAttribute('data-goto'));
+    });
+  });
+  document.querySelectorAll('[data-cat]').forEach(el=>{
+    el.addEventListener('click', ()=>{ state.filterCat = el.getAttribute('data-cat'); render(); });
+  });
+  document.querySelectorAll('[data-tab]').forEach(el=>{
+    el.addEventListener('click', ()=>{ state.dashTab = el.getAttribute('data-tab'); render(); });
+  });
+  document.querySelectorAll('[data-order]').forEach(el=>{
+    el.addEventListener('click', ()=>{ state.modalProduct = el.getAttribute('data-order'); render(); });
+  });
+  document.querySelectorAll('[data-confirm]').forEach(el=>{
+    el.addEventListener('click', ()=> updateOrderStatus(el.getAttribute('data-confirm'), 'dikonfirmasi'));
+  });
+  document.querySelectorAll('[data-reject]').forEach(el=>{
+    el.addEventListener('click', ()=> updateOrderStatus(el.getAttribute('data-reject'), 'ditolak'));
+  });
+  document.querySelectorAll('[data-done]').forEach(el=>{
+    el.addEventListener('click', ()=> updateOrderStatus(el.getAttribute('data-done'), 'selesai'));
+  });
+  document.querySelectorAll('[data-shop]').forEach(el=>{
+    el.addEventListener('click', ()=>{ state.viewingShopId = el.getAttribute('data-shop'); goto('shop-detail'); });
+  });
+  document.querySelectorAll('[data-review]').forEach(el=>{
+    el.addEventListener('click', ()=>{ state.reviewOrderId = el.getAttribute('data-review'); state.reviewDraftRating = 5; state.reviewDraftComment=''; render(); });
+  });
+  document.querySelectorAll('[data-star]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const comment = document.getElementById('reviewComment');
+      if(comment) state.reviewDraftComment = comment.value;
+      state.reviewDraftRating = Number(el.getAttribute('data-star'));
+      render();
+    });
+  });
+
+  const searchInput = document.getElementById('searchInput');
+  if(searchInput){
+    searchInput.addEventListener('input', (e)=>{
+      state.search = e.target.value; render();
+      const el = document.getElementById('searchInput');
+      el.focus(); el.selectionStart = el.value.length;
+    });
+  }
+  const kecInput = document.getElementById('kecInput');
+  if(kecInput){
+    kecInput.addEventListener('change', (e)=>{ state.filterKec = e.target.value; render(); });
+  }
+  const lookupBtn = document.getElementById('lookupBtn');
+  if(lookupBtn){
+    lookupBtn.addEventListener('click', ()=>{
+      const v = document.getElementById('lookupInput').value;
+      state.buyerLookupPhone = v; render();
+    });
+  }
+
+  const closeModal = document.getElementById('closeModal');
+  if(closeModal) closeModal.addEventListener('click', ()=>{ state.modalProduct=null; render(); });
+  const overlay = document.getElementById('modalOverlay');
+  if(overlay) overlay.addEventListener('click', (e)=>{ if(e.target.id==='modalOverlay'){ state.modalProduct=null; render(); } });
+
+  const closeReviewModal = document.getElementById('closeReviewModal');
+  if(closeReviewModal) closeReviewModal.addEventListener('click', ()=>{ state.reviewOrderId=null; render(); });
+  const reviewOverlay = document.getElementById('reviewOverlay');
+  if(reviewOverlay) reviewOverlay.addEventListener('click', (e)=>{ if(e.target.id==='reviewOverlay'){ state.reviewOrderId=null; render(); } });
+  const reviewCommentEl = document.getElementById('reviewComment');
+  if(reviewCommentEl) reviewCommentEl.addEventListener('input', (e)=>{ state.reviewDraftComment = e.target.value; });
+  const reviewForm = document.getElementById('reviewForm');
+  if(reviewForm){
+    reviewForm.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const order = state.orders.find(x=>x.id===state.reviewOrderId);
+      submitReview(new FormData(reviewForm), order);
+    });
+  }
+
+  const orderForm = document.getElementById('orderForm');
+  if(orderForm){
+    orderForm.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const product = productOf(state.modalProduct);
+      placeOrder(new FormData(orderForm), product);
+    });
+  }
+  const loginForm = document.getElementById('loginForm');
+  if(loginForm){
+    loginForm.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      loginSeller(new FormData(loginForm).get('phone'));
+    });
+  }
+  const registerForm = document.getElementById('registerForm');
+  if(registerForm){
+    registerForm.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      registerSeller(new FormData(registerForm));
+    });
+  }
+  const addProductForm = document.getElementById('addProductForm');
+  if(addProductForm){
+    addProductForm.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      addProduct(new FormData(addProductForm));
+      addProductForm.reset();
+    });
+  }
+  const adminLoginForm = document.getElementById('adminLoginForm');
+  if(adminLoginForm){
+    adminLoginForm.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      adminLogin(new FormData(adminLoginForm).get('passcode'));
+    });
+  }
+}
+
+/* ---------- INIT ---------- */
+history.replaceState({view:'home'}, '', '#home');
+loadAll();
+</script>
+</body>
+</html>
