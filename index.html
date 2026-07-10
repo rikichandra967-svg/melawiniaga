@@ -229,6 +229,7 @@ const firebaseConfig = {
 /* =================================================================================== */
 
 const ADMIN_PASSCODE = 'melawi2026'; // ganti sebelum membagikan link ke publik
+const AUTO_SEED_DEMO_DATA = false; // set true lagi hanya kalau ingin mengisi ulang data contoh untuk uji coba
 const isFirebaseConfigured = !firebaseConfig.apiKey.startsWith('GANTI');
 
 let db = null;
@@ -277,7 +278,7 @@ async function loadAll(){
     state.products = pDoc.exists ? (pDoc.data().list || []) : [];
     state.orders = oDoc.exists ? (oDoc.data().list || []) : [];
     state.reviews = rDoc.exists ? (rDoc.data().list || []) : [];
-    if(state.sellers.length === 0 && state.products.length === 0){
+    if(state.sellers.length === 0 && state.products.length === 0 && AUTO_SEED_DEMO_DATA){
       await seedDemoData();
     }
     listenLive();
