@@ -111,10 +111,10 @@
   .select-input{min-width:160px;}
   .chip{padding:7px 13px;border-radius:20px;background:var(--card);border:1px solid var(--line);font-size:12.5px;font-weight:600;color:var(--ink-soft);transition:all .15s;}
   .chip.active{background:var(--teal-800);color:#fff;border-color:var(--teal-800);}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px;max-width:900px;margin:0 auto;}
-  .prod-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;transition:transform .18s,box-shadow .18s;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px;max-width:900px;margin:0 auto;justify-items:center;}
+  .prod-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;transition:transform .18s,box-shadow .18s;width:100%;max-width:280px;}
   .prod-card:hover{transform:translateY(-4px);box-shadow:0 12px 26px rgba(18,48,44,0.16);}
-  .prod-thumb{height:88px;background:linear-gradient(135deg,var(--teal-700),var(--teal-950));display:flex;align-items:center;justify-content:center;font-size:32px;}
+  .prod-thumb{aspect-ratio:4/3;background:linear-gradient(135deg,var(--teal-700),var(--teal-950));display:flex;align-items:center;justify-content:center;font-size:38px;}
   .prod-body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;flex:1;}
   .prod-shop{font-size:11px;color:var(--gold-600);font-weight:700;text-transform:uppercase;letter-spacing:0.4px;}
   .prod-name{font-size:15px;font-weight:600;color:var(--teal-950);}
@@ -169,7 +169,7 @@
   .prod-row{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin-bottom:10px;gap:10px;}
   .prod-row .pn{font-weight:600;font-size:14px;}
   .prod-row .pp{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--brown-700);white-space:nowrap;}
-  .prod-row-thumb{width:36px;height:36px;border-radius:7px;object-fit:cover;flex-shrink:0;background:var(--paper);display:flex;align-items:center;justify-content:center;font-size:16px;}
+  .prod-row-thumb{width:36px;height:36px;border-radius:7px;object-fit:contain;flex-shrink:0;background:var(--paper);display:flex;align-items:center;justify-content:center;font-size:16px;}
 
   /* ADMIN */
   .admin-table{max-width:900px;margin:0 auto 30px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
@@ -276,6 +276,7 @@ let state = {
   reviewOrderId: null,
   reviewDraftRating: 5,
   reviewDraftComment: '',
+  editingProductId: null,
 };
 
 const CATEGORIES = ['Makanan','Sembako','Pertanian','Perikanan','Kerajinan','Fashion','Jasa','Elektronik'];
@@ -469,6 +470,32 @@ async function loginSeller(phone){
   goto('seller-dashboard');
 }
 
+async function updateProduct(id, formData){
+  const updates = {
+    name: formData.get('name'),
+    price: Number(formData.get('price')),
+    category: formData.get('category'),
+    stock: Number(formData.get('stock')) || 0,
+  };
+  const file = formData.get('image');
+  if(file && file.size > 0){
+    try{
+      toast('Memproses gambar...');
+      updates.image = await compressImageToDataUrl(file, 640, 0.62);
+    }catch(e){ toast('Gagal memproses gambar, foto lama tetap dipakai.'); }
+  }
+  try{ await db.collection('products').doc(id).update(updates); }catch(e){ toast('Gagal menyimpan perubahan.'); return; }
+  toast('Produk diperbarui.');
+  state.editingProductId = null;
+  render();
+}
+
+async function deleteProduct(id){
+  if(!confirm('Yakin ingin menghapus produk ini? Tindakan ini tidak bisa dibatalkan.')) return;
+  try{ await db.collection('products').doc(id).delete(); toast('Produk dihapus.'); }
+  catch(e){ toast('Gagal menghapus produk. Cek aturan keamanan Firestore Anda.'); }
+}
+
 async function addProduct(formData){
   const prod = {
     sellerId: state.currentSeller.id,
@@ -565,7 +592,7 @@ function renderSetupScreen(){
 function render(){
   const app = document.getElementById('app');
   if(state.loading){ app.innerHTML = '<div style="padding:80px;text-align:center;color:#5B5145;">Memuat MelawiNiaga...</div>'; return; }
-  const modalHtml = state.reviewOrderId ? reviewModal(state.reviewOrderId) : (state.modalProduct ? orderModal(state.modalProduct) : '');
+  const modalHtml = state.editingProductId ? editProductModal(state.editingProductId) : (state.reviewOrderId ? reviewModal(state.reviewOrderId) : (state.modalProduct ? orderModal(state.modalProduct) : ''));
   app.innerHTML = nav() + `<div class="view-fade">${body()}</div>` + modalHtml + footerHtml();
   bindEvents();
   animateStats();
@@ -611,7 +638,7 @@ function homeView(){
   return `
   <div class="hero">
     <div class="hero-inner">
-      <div class="eyebrow">Tahap Validasi &middot; Pesanan Gratis</div>
+      <div class="eyebrow">Gratis Bergabung &middot; Khusus Melawi</div>
       <h1>Pesan lewat sistem, bukan sekadar chat lalu hilang.</h1>
       <p>MelawiNiaga menghubungkan pembeli dan toko lokal Melawi — karet, hasil sungai, tenun, kopi, sampai jasa harian — lewat satu prosedur yang jelas.</p>
       <div class="hero-actions">
@@ -655,7 +682,7 @@ function homeView(){
     <div class="cta-band">
       <div>
         <h3>Punya toko di Melawi?</h3>
-        <p>Daftar gratis, produk tanpa batas selama tahap validasi ini. Kami bantu foto produk dan promosi awal.</p>
+        <p>Daftar gratis, produk tanpa batas. Kami bantu foto produk dan promosi awal.</p>
       </div>
       <button class="btn-primary" data-goto="seller-auth">Daftar Sekarang</button>
     </div>
@@ -688,7 +715,7 @@ function howItWorksView(){
 
     <div class="form-card" style="max-width:640px;margin-top:24px;">
       <h2 style="font-size:17px;">Kenapa pembayaran tidak lewat aplikasi?</h2>
-      <p style="font-size:13.5px;color:var(--ink-soft);margin:8px 0 0;">Menyimpan atau memproses pembayaran orang lain diatur oleh Bank Indonesia/OJK. Selama tahap validasi ini, MelawiNiaga hanya menjadi penengah pesanan — bukan penyimpan uang — supaya bisa berjalan legal tanpa izin khusus dulu.</p>
+      <p style="font-size:13.5px;color:var(--ink-soft);margin:8px 0 0;">Menyimpan atau memproses pembayaran orang lain diatur oleh Bank Indonesia/OJK. Karena itu, MelawiNiaga hanya menjadi penengah pesanan — bukan penyimpan uang — supaya bisa berjalan legal tanpa izin khusus.</p>
     </div>
   </div>`;
 }
@@ -698,7 +725,7 @@ function aboutView(){
   <div class="section" style="padding-top:20px;">
     <div class="form-card" style="max-width:560px;">
       <h2>Tentang MelawiNiaga</h2>
-      <p style="font-size:13.5px;color:var(--ink-soft);line-height:1.7;">MelawiNiaga dibangun untuk membantu toko dan usaha kecil di Kabupaten Melawi mendapat lebih banyak pelanggan, dan membantu warga menemukan produk lokal tanpa harus keliling pasar. Saat ini masih tahap validasi — gratis untuk semua toko, dan kami secara aktif mencari toko-toko pertama untuk diajak bergabung langsung.</p>
+      <p style="font-size:13.5px;color:var(--ink-soft);line-height:1.7;">MelawiNiaga dibangun untuk membantu toko dan usaha kecil di Kabupaten Melawi mendapat lebih banyak pelanggan, dan membantu warga menemukan produk lokal tanpa harus keliling pasar. Gratis untuk semua toko — kami secara aktif mengajak toko-toko Melawi untuk bergabung langsung.</p>
       <div class="field" style="margin-top:20px;">
         <label>Hubungi Admin</label>
         <a class="btn-sm btn-wa" style="width:100%;text-align:center;" href="${waLink('6282394305062','Halo Admin MelawiNiaga, saya ingin bertanya tentang platform ini.')}" target="_blank">Chat via WhatsApp</a>
@@ -745,7 +772,7 @@ function buyerBrowseView(){
         const stats = ratingStats(p.sellerId);
         return `
         <div class="prod-card">
-          <div class="prod-thumb" ${p.image ? `style="background-image:url('${p.image}');background-size:cover;background-position:center;"` : ''}>${p.image ? '' : (CAT_EMOJI[p.category]||'🛍️')}</div>
+          <div class="prod-thumb" ${p.image ? `style="background-image:url('${p.image}');background-size:contain;background-position:center;background-repeat:no-repeat;"` : ''}>${p.image ? '' : (CAT_EMOJI[p.category]||'🛍️')}</div>
           <div class="prod-body">
             <button class="prod-shop shop-link" data-shop="${p.sellerId}">${s ? s.shopName : 'Toko'}</button>
             ${stats.count ? `<div class="rating-line">${starsHtml(stats.avg,12)}<span>${stats.avg.toFixed(1)} (${stats.count})</span></div>` : `<div class="rating-line">Belum ada ulasan</div>`}
@@ -780,7 +807,7 @@ function shopDetailView(){
     <div class="grid" style="margin-bottom:44px;">
       ${myProducts.length ? myProducts.map(p=>`
         <div class="prod-card">
-          <div class="prod-thumb" ${p.image ? `style="background-image:url('${p.image}');background-size:cover;background-position:center;"` : ''}>${p.image ? '' : (CAT_EMOJI[p.category]||'🛍️')}</div>
+          <div class="prod-thumb" ${p.image ? `style="background-image:url('${p.image}');background-size:contain;background-position:center;background-repeat:no-repeat;"` : ''}>${p.image ? '' : (CAT_EMOJI[p.category]||'🛍️')}</div>
           <div class="prod-body">
             <div class="prod-name">${p.name}</div>
             <div class="prod-price">${fmtRp(p.price)}</div>
@@ -799,6 +826,27 @@ function shopDetailView(){
           <div class="rdate">${new Date(r.createdAt).toLocaleDateString('id-ID')}</div>
           ${r.comment ? `<div class="rcomment">"${r.comment}"</div>` : ''}
         </div>`).join('') : '<div class="empty"><span class="eicon">🛶</span>Belum ada ulasan untuk toko ini.</div>'}
+    </div>
+  </div>`;
+}
+
+function editProductModal(productId){
+  const p = productOf(productId);
+  if(!p) return '';
+  return `
+  <div class="overlay" id="editOverlay">
+    <div class="modal">
+      <button class="modal-close" id="closeEditModal">&times;</button>
+      <h3>Edit Produk</h3>
+      <div class="sub">${p.name}</div>
+      <form id="editProductForm">
+        <div class="field"><label>Nama Produk</label><input name="name" value="${p.name}" required></div>
+        <div class="field"><label>Harga (Rp)</label><input name="price" type="number" min="0" value="${p.price}" required></div>
+        <div class="field"><label>Kategori</label><select name="category">${CATEGORIES.map(c=>`<option ${c===p.category?'selected':''}>${c}</option>`).join('')}</select></div>
+        <div class="field"><label>Stok</label><input name="stock" type="number" min="0" value="${p.stock}"></div>
+        <div class="field"><label>Ganti Foto (opsional)</label><input name="image" type="file" accept="image/*"></div>
+        <button type="submit" class="form-submit">Simpan Perubahan</button>
+      </form>
     </div>
   </div>`;
 }
@@ -935,7 +983,7 @@ function sellerRegisterView(){
   <div class="section" style="padding-top:24px;">
     <div class="form-card">
       <h2>Daftarkan Toko Anda</h2>
-      <div class="sub">Gratis, produk tanpa batas selama tahap validasi. Pesanan pembeli akan langsung masuk ke dashboard toko Anda.</div>
+      <div class="sub">Gratis, produk tanpa batas. Pesanan pembeli akan langsung masuk ke dashboard toko Anda.</div>
       <form id="registerForm">
         <div class="field"><label>Nama Anda</label><input name="name" required></div>
         <div class="field"><label>Nama Toko</label><input name="shopName" required></div>
@@ -981,7 +1029,7 @@ function sellerDashboardView(){
         </form>
       </div>
       <div class="simple-list">
-        ${myProducts.length ? myProducts.map(p=>`<div class="prod-row"><div style="display:flex;align-items:center;gap:10px;">${p.image ? `<img src="${p.image}" class="prod-row-thumb">` : `<div class="prod-row-thumb">${CAT_EMOJI[p.category]||'🛍️'}</div>`}<span class="pn">${p.name}</span></div><span class="pp">${fmtRp(p.price)}</span></div>`).join('') : '<div class="empty"><span class="eicon">🛶</span>Belum ada produk. Tambahkan produk pertama Anda.</div>'}
+        ${myProducts.length ? myProducts.map(p=>`<div class="prod-row"><div style="display:flex;align-items:center;gap:10px;">${p.image ? `<img src="${p.image}" class="prod-row-thumb">` : `<div class="prod-row-thumb">${CAT_EMOJI[p.category]||'🛍️'}</div>`}<div><div class="pn">${p.name}</div><div class="pp">${fmtRp(p.price)}</div></div></div><div style="display:flex;gap:6px;flex-shrink:0;"><button class="btn-sm" style="background:var(--teal-700);color:#fff;" data-edit-product="${p.id}">Edit</button><button class="btn-sm btn-reject" data-delete-product="${p.id}">Hapus</button></div></div>`).join('') : '<div class="empty"><span class="eicon">🛶</span>Belum ada produk. Tambahkan produk pertama Anda.</div>'}
       </div>
     ` : `
       <div class="simple-list">
@@ -1034,6 +1082,20 @@ function adminPanelView(){
         </div>`).join('')}
     </div>
 
+    <h3 style="max-width:900px;margin:0 auto 12px;font-size:16px;">Kelola Produk (${state.products.length})</h3>
+    <div class="admin-table">
+      ${state.products.length ? state.products.slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).map(p=>{
+        const s = sellerOf(p.sellerId);
+        return `<div class="admin-row">
+          <div>
+            <div class="an">${p.name} — ${fmtRp(p.price)}</div>
+            <div class="aloc">Toko: ${s?s.shopName:'(toko dihapus)'} &middot; ${p.category}</div>
+          </div>
+          <button class="btn-sm btn-reject" data-delete-product="${p.id}">Hapus</button>
+        </div>`;
+      }).join('') : '<div class="empty">Belum ada produk.</div>'}
+    </div>
+
     <h3 style="max-width:900px;margin:0 auto 12px;font-size:16px;">10 Pesanan Terbaru</h3>
     <div class="simple-list">
       ${recentOrders.length ? recentOrders.map(o=>orderSlip(o,true)).join('') : '<div class="empty"><span class="eicon">🛶</span>Belum ada pesanan.</div>'}
@@ -1042,7 +1104,7 @@ function adminPanelView(){
 }
 
 function footerHtml(){
-  return `<footer>MelawiNiaga &middot; Prototipe tahap validasi. Pembayaran &amp; pengiriman masih diatur manual antara pembeli dan penjual via WhatsApp setelah pesanan dikonfirmasi.
+  return `<footer>MelawiNiaga &middot; Ekosistem digital masyarakat Melawi. Pembayaran &amp; pengiriman diatur manual antara pembeli dan penjual via WhatsApp setelah pesanan dikonfirmasi.
   <button class="admin-link" data-goto="${state.isAdmin?'admin-panel':'admin-login'}">Kelola platform (khusus admin)</button>
   </footer>`;
 }
@@ -1090,6 +1152,12 @@ function bindEvents(){
   document.querySelectorAll('[data-shop]').forEach(el=>{
     el.addEventListener('click', ()=>{ state.viewingShopId = el.getAttribute('data-shop'); goto('shop-detail'); });
   });
+  document.querySelectorAll('[data-edit-product]').forEach(el=>{
+    el.addEventListener('click', ()=>{ state.editingProductId = el.getAttribute('data-edit-product'); render(); });
+  });
+  document.querySelectorAll('[data-delete-product]').forEach(el=>{
+    el.addEventListener('click', ()=> deleteProduct(el.getAttribute('data-delete-product')));
+  });
   document.querySelectorAll('[data-review]').forEach(el=>{
     el.addEventListener('click', ()=>{ state.reviewOrderId = el.getAttribute('data-review'); state.reviewDraftRating = 5; state.reviewDraftComment=''; render(); });
   });
@@ -1131,6 +1199,18 @@ function bindEvents(){
   if(closeReviewModal) closeReviewModal.addEventListener('click', ()=>{ state.reviewOrderId=null; render(); });
   const reviewOverlay = document.getElementById('reviewOverlay');
   if(reviewOverlay) reviewOverlay.addEventListener('click', (e)=>{ if(e.target.id==='reviewOverlay'){ state.reviewOrderId=null; render(); } });
+
+  const closeEditModal = document.getElementById('closeEditModal');
+  if(closeEditModal) closeEditModal.addEventListener('click', ()=>{ state.editingProductId=null; render(); });
+  const editOverlay = document.getElementById('editOverlay');
+  if(editOverlay) editOverlay.addEventListener('click', (e)=>{ if(e.target.id==='editOverlay'){ state.editingProductId=null; render(); } });
+  const editProductForm = document.getElementById('editProductForm');
+  if(editProductForm){
+    editProductForm.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      updateProduct(state.editingProductId, new FormData(editProductForm));
+    });
+  }
   const reviewCommentEl = document.getElementById('reviewComment');
   if(reviewCommentEl) reviewCommentEl.addEventListener('input', (e)=>{ state.reviewDraftComment = e.target.value; });
   const reviewForm = document.getElementById('reviewForm');
