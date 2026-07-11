@@ -40,6 +40,22 @@
   @keyframes fadeSlideIn{ from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:translateY(0);} }
   .view-fade{animation:fadeSlideIn .35s ease;}
 
+  @keyframes floatIcon{ 0%,100%{transform:translateY(0) rotate(0deg);} 50%{transform:translateY(-14px) rotate(6deg);} }
+  .hero-float{position:absolute;opacity:0.16;z-index:1;animation:floatIcon 6s ease-in-out infinite;pointer-events:none;user-select:none;}
+
+  @keyframes heroFadeUp{ from{opacity:0;transform:translateY(14px);} to{opacity:1;transform:translateY(0);} }
+  .hero-inner .eyebrow{animation:heroFadeUp .6s ease both;}
+  .hero-inner h1{animation:heroFadeUp .6s ease .12s both;}
+  .hero-inner p{animation:heroFadeUp .6s ease .24s both;}
+  .hero-inner .hero-actions{animation:heroFadeUp .6s ease .36s both;}
+
+  @keyframes ctaGlow{ 0%,100%{box-shadow:0 0 0 0 rgba(217,164,65,0.45);} 50%{box-shadow:0 0 0 9px rgba(217,164,65,0);} }
+  .btn-primary{animation:ctaGlow 2.6s ease-in-out infinite;}
+
+  @keyframes waveDrift{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
+  .wave-drift{position:absolute;top:0;left:0;width:200%;height:100%;animation:waveDrift 16s linear infinite;}
+  .wave-static{position:absolute;top:0;left:0;width:100%;height:100%;}
+
   /* NAV */
   .nav{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;position:sticky;top:0;background:var(--paper);z-index:50;border-bottom:1px solid var(--line);gap:12px;flex-wrap:wrap;}
   .nav-brand{display:flex;flex-direction:column;cursor:pointer;}
@@ -64,7 +80,7 @@
   .btn-primary:hover{background:var(--gold-600);transform:translateY(-1px);}
   .btn-secondary{background:transparent;color:#fff;padding:13px 24px;border-radius:10px;font-weight:600;font-size:14px;border:1px solid rgba(255,255,255,0.3);transition:border-color .15s;}
   .btn-secondary:hover{border-color:#fff;}
-  .wave{position:absolute;bottom:-2px;left:0;width:100%;line-height:0;z-index:1;}
+  .wave{position:absolute;bottom:-2px;left:0;width:100%;height:60px;overflow:hidden;z-index:1;}
 
   /* STATS */
   .stats{display:flex;gap:0;background:var(--card);margin:-40px 24px 0;border-radius:var(--radius);position:relative;z-index:3;box-shadow:0 10px 28px rgba(18,48,44,0.14);overflow:hidden;border:1px solid var(--line);flex-wrap:wrap;}
@@ -153,6 +169,7 @@
   .prod-row{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin-bottom:10px;gap:10px;}
   .prod-row .pn{font-weight:600;font-size:14px;}
   .prod-row .pp{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--brown-700);white-space:nowrap;}
+  .prod-row-thumb{width:36px;height:36px;border-radius:7px;object-fit:cover;flex-shrink:0;background:var(--paper);display:flex;align-items:center;justify-content:center;font-size:16px;}
 
   /* ADMIN */
   .admin-table{max-width:900px;margin:0 auto 30px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
@@ -193,6 +210,7 @@
   .setup-screen code{background:var(--paper);padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:12px;}
 
   @media(max-width:640px){
+    .hero-float{display:none;}
     .steps{grid-template-columns:1fr;}
     .stats{flex-direction:column;margin:-30px 16px 0;}
     .stat{border-right:none;border-bottom:1px solid var(--line);}
@@ -268,16 +286,16 @@ const CAT_EMOJI = {Makanan:'🍲',Sembako:'🧺',Pertanian:'🌾',Perikanan:'�
 async function loadAll(){
   if(!isFirebaseConfigured){ state.loading=false; renderSetupScreen(); return; }
   try{
-    const [sDoc, pDoc, oDoc, rDoc] = await Promise.all([
+    const [sDoc, oDoc, rDoc, pSnap] = await Promise.all([
       db.collection('melawi').doc('sellers').get(),
-      db.collection('melawi').doc('products').get(),
       db.collection('melawi').doc('orders').get(),
       db.collection('melawi').doc('reviews').get(),
+      db.collection('products').get(),
     ]);
     state.sellers = sDoc.exists ? (sDoc.data().list || []) : [];
-    state.products = pDoc.exists ? (pDoc.data().list || []) : [];
     state.orders = oDoc.exists ? (oDoc.data().list || []) : [];
     state.reviews = rDoc.exists ? (rDoc.data().list || []) : [];
+    state.products = pSnap.docs.map(d => Object.assign({id: d.id}, d.data()));
     if(state.sellers.length === 0 && state.products.length === 0 && AUTO_SEED_DEMO_DATA){
       await seedDemoData();
     }
@@ -291,8 +309,9 @@ async function loadAll(){
 }
 
 function listenLive(){
-  db.collection('melawi').doc('products').onSnapshot(doc=>{
-    if(doc.exists){ state.products = doc.data().list || []; render(); }
+  db.collection('products').onSnapshot(snap=>{
+    state.products = snap.docs.map(d => Object.assign({id: d.id}, d.data()));
+    render();
   });
   db.collection('melawi').doc('orders').onSnapshot(doc=>{
     if(doc.exists){ state.orders = doc.data().list || []; render(); }
@@ -306,7 +325,6 @@ function listenLive(){
 }
 
 async function saveSellers(){ await db.collection('melawi').doc('sellers').set({list: state.sellers}); }
-async function saveProducts(){ await db.collection('melawi').doc('products').set({list: state.products}); }
 async function saveOrders(){ await db.collection('melawi').doc('orders').set({list: state.orders}); }
 async function saveReviews(){ await db.collection('melawi').doc('reviews').set({list: state.reviews}); }
 
@@ -357,7 +375,9 @@ async function seedDemoData(){
   state.products = p;
   state.orders = demoOrders;
   state.reviews = demoReviews;
-  await saveSellers(); await saveProducts(); await saveOrders(); await saveReviews();
+  const batch = db.batch();
+  p.forEach(prod => batch.set(db.collection('products').doc(prod.id), prod));
+  await saveSellers(); await batch.commit(); await saveOrders(); await saveReviews();
   toast('Data contoh dimuat — nomor WA di sini hanyalah contoh, bukan nomor asli.');
 }
 
@@ -386,6 +406,26 @@ function starsHtml(avg, size){
   for(let i=1;i<=5;i++){ out += (i <= Math.round(avg)) ? '★' : '☆'; }
   out += '</span>';
   return out;
+}
+function compressImageToDataUrl(file, maxWidth, quality){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if(w > maxWidth){ h = Math.round(h * (maxWidth / w)); w = maxWidth; }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = () => reject(new Error('Gagal memuat gambar'));
+      img.src = e.target.result;
+    };
+    reader.onerror = () => reject(new Error('Gagal membaca file'));
+    reader.readAsDataURL(file);
+  });
 }
 
 /* ---------- NAVIGATION (with real browser back/forward) ---------- */
@@ -431,15 +471,26 @@ async function loginSeller(phone){
 
 async function addProduct(formData){
   const prod = {
-    id: genId('prod'),
     sellerId: state.currentSeller.id,
     name: formData.get('name'),
     price: Number(formData.get('price')),
     category: formData.get('category'),
     stock: Number(formData.get('stock')) || 0,
+    image: null,
+    createdAt: Date.now()
   };
-  state.products.push(prod);
-  try{ await saveProducts(); }catch(e){ toast('Gagal menyimpan produk.'); return; }
+  const id = genId('prod');
+  const file = formData.get('image');
+  if(file && file.size > 0){
+    try{
+      toast('Memproses gambar...');
+      prod.image = await compressImageToDataUrl(file, 640, 0.62);
+    }catch(e){
+      console.error(e);
+      toast('Gagal memproses gambar, produk disimpan tanpa gambar.');
+    }
+  }
+  try{ await db.collection('products').doc(id).set(prod); }catch(e){ toast('Gagal menyimpan produk.'); return; }
   toast('Produk "'+prod.name+'" ditambahkan.');
   render();
 }
@@ -517,6 +568,7 @@ function render(){
   const modalHtml = state.reviewOrderId ? reviewModal(state.reviewOrderId) : (state.modalProduct ? orderModal(state.modalProduct) : '');
   app.innerHTML = nav() + `<div class="view-fade">${body()}</div>` + modalHtml + footerHtml();
   bindEvents();
+  animateStats();
 }
 
 function nav(){
@@ -527,6 +579,7 @@ function nav(){
       <span class="tag">Ekosistem Digital Masyarakat Melawi</span>
     </div>
     <div class="nav-pill">
+      <button class="nav-btn ${state.view==='home'?'active':''}" data-goto="home">Beranda</button>
       <button class="nav-btn ${state.view==='buyer-browse'?'active':''}" data-goto="buyer-browse">Belanja</button>
       <button class="nav-btn ${state.view==='how-it-works'?'active':''}" data-goto="how-it-works">Cara Kerja</button>
       <button class="nav-btn ${state.view==='about'?'active':''}" data-goto="about">Tentang</button>
@@ -566,16 +619,24 @@ function homeView(){
         <button class="btn-secondary" data-goto="seller-auth">Daftarkan Toko Saya</button>
       </div>
     </div>
-    <svg class="wave" viewBox="0 0 1200 60" preserveAspectRatio="none">
-      <path d="M0,36 C300,66 900,6 1200,36 L1200,60 L0,60 Z" fill="#1A423D" opacity="0.55"></path>
-      <path d="M0,30 C300,60 900,0 1200,30 L1200,60 L0,60 Z" fill="#F3EEE0"></path>
-    </svg>
+    <span class="hero-float" style="top:16%;left:76%;font-size:26px;animation-delay:0s;">🐟</span>
+    <span class="hero-float" style="top:52%;left:88%;font-size:22px;animation-delay:1.2s;">🌾</span>
+    <span class="hero-float" style="top:74%;left:68%;font-size:24px;animation-delay:2.4s;">🧶</span>
+    <span class="hero-float" style="top:10%;left:58%;font-size:20px;animation-delay:3.6s;">☕</span>
+    <div class="wave">
+      <svg class="wave-drift" viewBox="0 0 2400 60" preserveAspectRatio="none">
+        <path d="M0,36 C300,66 900,6 1200,36 C1500,66 2100,6 2400,36 L2400,60 L0,60 Z" fill="#1A423D" opacity="0.55"></path>
+      </svg>
+      <svg class="wave-static" viewBox="0 0 1200 60" preserveAspectRatio="none">
+        <path d="M0,30 C300,60 900,0 1200,30 L1200,60 L0,60 Z" fill="#F3EEE0"></path>
+      </svg>
+    </div>
   </div>
   <div class="stats">
-    <div class="stat"><div class="num">${state.sellers.length}</div><div class="lbl">Toko Terdaftar</div></div>
-    <div class="stat"><div class="num">${state.products.length}</div><div class="lbl">Produk Tersedia</div></div>
-    <div class="stat"><div class="num">${new Set(state.sellers.map(s=>s.kecamatan)).size}</div><div class="lbl">Kecamatan Terjangkau</div></div>
-    <div class="stat"><div class="num">${state.orders.length}</div><div class="lbl">Pesanan Diproses</div></div>
+    <div class="stat"><div class="num" data-target="${state.sellers.length}">0</div><div class="lbl">Toko Terdaftar</div></div>
+    <div class="stat"><div class="num" data-target="${state.products.length}">0</div><div class="lbl">Produk Tersedia</div></div>
+    <div class="stat"><div class="num" data-target="${new Set(state.sellers.map(s=>s.kecamatan)).size}">0</div><div class="lbl">Kecamatan Terjangkau</div></div>
+    <div class="stat"><div class="num" data-target="${state.orders.length}">0</div><div class="lbl">Pesanan Diproses</div></div>
   </div>
 
   <div class="section">
@@ -655,6 +716,11 @@ function buyerBrowseView(){
     const matchSearch = !state.search || p.name.toLowerCase().includes(state.search.toLowerCase());
     return matchCat && matchKec && matchSearch;
   });
+  list = list.slice().sort((a,b)=>{
+    const ra = ratingStats(a.sellerId), rb = ratingStats(b.sellerId);
+    if(rb.avg !== ra.avg) return rb.avg - ra.avg;
+    return rb.count - ra.count;
+  });
   return `
   <div class="section" style="padding-top:16px;">
     <div class="section-head" style="margin-bottom:20px;">
@@ -679,7 +745,7 @@ function buyerBrowseView(){
         const stats = ratingStats(p.sellerId);
         return `
         <div class="prod-card">
-          <div class="prod-thumb">${CAT_EMOJI[p.category]||'🛍️'}</div>
+          <div class="prod-thumb" ${p.image ? `style="background-image:url('${p.image}');background-size:cover;background-position:center;"` : ''}>${p.image ? '' : (CAT_EMOJI[p.category]||'🛍️')}</div>
           <div class="prod-body">
             <button class="prod-shop shop-link" data-shop="${p.sellerId}">${s ? s.shopName : 'Toko'}</button>
             ${stats.count ? `<div class="rating-line">${starsHtml(stats.avg,12)}<span>${stats.avg.toFixed(1)} (${stats.count})</span></div>` : `<div class="rating-line">Belum ada ulasan</div>`}
@@ -714,7 +780,7 @@ function shopDetailView(){
     <div class="grid" style="margin-bottom:44px;">
       ${myProducts.length ? myProducts.map(p=>`
         <div class="prod-card">
-          <div class="prod-thumb">${CAT_EMOJI[p.category]||'🛍️'}</div>
+          <div class="prod-thumb" ${p.image ? `style="background-image:url('${p.image}');background-size:cover;background-position:center;"` : ''}>${p.image ? '' : (CAT_EMOJI[p.category]||'🛍️')}</div>
           <div class="prod-body">
             <div class="prod-name">${p.name}</div>
             <div class="prod-price">${fmtRp(p.price)}</div>
@@ -910,11 +976,12 @@ function sellerDashboardView(){
           <div class="field"><label>Harga (Rp)</label><input name="price" type="number" min="0" required></div>
           <div class="field"><label>Kategori</label><select name="category">${CATEGORIES.map(c=>`<option ${c===cs.category?'selected':''}>${c}</option>`).join('')}</select></div>
           <div class="field"><label>Stok</label><input name="stock" type="number" min="0" value="10"></div>
+          <div class="field"><label>Foto Produk (opsional)</label><input name="image" type="file" accept="image/*"></div>
           <button type="submit" class="form-submit">Simpan Produk</button>
         </form>
       </div>
       <div class="simple-list">
-        ${myProducts.length ? myProducts.map(p=>`<div class="prod-row"><span class="pn">${p.name}</span><span class="pp">${fmtRp(p.price)}</span></div>`).join('') : '<div class="empty"><span class="eicon">🛶</span>Belum ada produk. Tambahkan produk pertama Anda.</div>'}
+        ${myProducts.length ? myProducts.map(p=>`<div class="prod-row"><div style="display:flex;align-items:center;gap:10px;">${p.image ? `<img src="${p.image}" class="prod-row-thumb">` : `<div class="prod-row-thumb">${CAT_EMOJI[p.category]||'🛍️'}</div>`}<span class="pn">${p.name}</span></div><span class="pp">${fmtRp(p.price)}</span></div>`).join('') : '<div class="empty"><span class="eicon">🛶</span>Belum ada produk. Tambahkan produk pertama Anda.</div>'}
       </div>
     ` : `
       <div class="simple-list">
@@ -978,6 +1045,20 @@ function footerHtml(){
   return `<footer>MelawiNiaga &middot; Prototipe tahap validasi. Pembayaran &amp; pengiriman masih diatur manual antara pembeli dan penjual via WhatsApp setelah pesanan dikonfirmasi.
   <button class="admin-link" data-goto="${state.isAdmin?'admin-panel':'admin-login'}">Kelola platform (khusus admin)</button>
   </footer>`;
+}
+
+function animateStats(){
+  document.querySelectorAll('.stat .num[data-target]').forEach(el=>{
+    const target = Number(el.getAttribute('data-target'));
+    if(!target){ el.textContent = '0'; return; }
+    let cur = 0;
+    const step = Math.max(1, Math.ceil(target/24));
+    const timer = setInterval(()=>{
+      cur += step;
+      if(cur >= target){ cur = target; clearInterval(timer); }
+      el.textContent = cur;
+    }, 30);
+  });
 }
 
 /* ---------- EVENTS ---------- */
